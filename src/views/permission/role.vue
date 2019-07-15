@@ -35,7 +35,7 @@
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑权限':'添加角色'">
       <el-form :model="role" label-width="80px" label-position="left">
         <el-form-item label="角色名称">
-          <el-input v-model="role.name" placeholder="请输入角色名称, 以 ROLE_ 开头" />
+          <el-input v-model="role.name" :disabled="dialogType === 'edit'" placeholder="请输入角色名称, 以 ROLE_ 开头" />
         </el-form-item>
         <el-form-item label="角色描述">
           <el-input
@@ -109,16 +109,13 @@ export default {
   },
   methods: {
     async getRoutes() {
-      debugger
       const res = await getRoutes()
       this.serviceRoutes = res.data
       const routes = this.generateRoutes(res.data)
       this.routes = this.i18n(routes)
     },
     async getRoles() {
-      debugger
       const res = await getRoles()
-      debugger
       this.rolesList = res.data
     },
     i18n(routes) {
@@ -255,9 +252,9 @@ export default {
         title: 'Success',
         dangerouslyUseHTMLString: true,
         message: `
-            <div>Role Key: ${key}</div>
-            <div>Role Nmae: ${name}</div>
-            <div>Description: ${description}</div>
+            <div>ID: ${key}</div>
+            <div>角色名称: ${name}</div>
+            <div>描述: ${description}</div>
           `,
         type: 'success'
       })

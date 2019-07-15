@@ -6,7 +6,7 @@ export default {
     permission: 'Permission',
     pagePermission: 'Page Permission',
     rolePermission: 'Role Permission',
-    directivePermission: 'Directive Permission',
+    directivePermission: 'User Permission',
     icons: 'Icons',
     components: 'Components',
     tinymce: 'Tinymce',
@@ -87,7 +87,9 @@ export default {
   },
   permission: {
     addRole: 'New Role',
+    addUser: 'New User',
     editPermission: 'Edit',
+    editUser: 'Edit',
     roles: 'Your roles',
     switchRoles: 'Switch roles',
     tips: 'In some cases, using v-permission will have no effect. For example: Element-UI  el-tab or el-table-column and other scenes that dynamically render dom. You can only do this with v-if.',

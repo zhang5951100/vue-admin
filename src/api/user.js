@@ -22,3 +22,33 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function getUser() {
+  return request({
+    url: '/user/users',
+    method: 'get'
+  })
+}
+
+export function addUser(data) {
+  return request({
+    url: '/user/users',
+    method: 'post',
+    data
+  })
+}
+
+export function updateUser(id, data) {
+  return request({
+    url: `/user/users/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+export function deleteUser(id) {
+  return request({
+    url: `/user/users/${id}`,
+    method: 'delete'
+  })
+}
