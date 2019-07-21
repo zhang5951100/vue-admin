@@ -4,6 +4,7 @@ export default {
     documentation: 'Documentation',
     guide: 'Guide',
     permission: 'Permission',
+    resource: 'Resource',
     pagePermission: 'Page Permission',
     rolePermission: 'Role Permission',
     directivePermission: 'User Permission',

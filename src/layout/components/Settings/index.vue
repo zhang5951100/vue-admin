@@ -28,8 +28,10 @@
 </template>
 
 <script>
+import ThemePicker from '@/components/ThemePicker'
 
 export default {
+  components: { ThemePicker },
   data() {
     return {}
   },

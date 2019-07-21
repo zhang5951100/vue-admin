@@ -1,4 +1,5 @@
 import { asyncRoutes, constantRoutes } from '@/router'
+import Layout from '@/layout'
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -56,6 +57,39 @@ const actions = {
       } else {
         accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
       }
+      // TODO
+      accessedRoutes.push({
+        path: '/permission',
+        component: Layout,
+        redirect: '/permission/page',
+        alwaysShow: true, // will always show the root menu
+        name: 'Permission',
+        meta: {
+          title: 'permission',
+          icon: 'lock',
+          roles: ['ROLE_ADMIN'] // you can set roles in root nav
+        },
+        children: [
+          {
+            path: 'directive',
+            component: () => import('@/views/permission/directive'),
+            name: 'DirectivePermission',
+            meta: {
+              title: 'directivePermission',
+              roles: ['ROLE_ADMIN']
+            }
+          },
+          {
+            path: 'role',
+            component: () => import('@/views/permission/role'),
+            name: 'RolePermission',
+            meta: {
+              title: 'rolePermission',
+              roles: ['ROLE_ADMIN']
+            }
+          }
+        ]
+      },)
       commit('SET_ROUTES', accessedRoutes)
       resolve(accessedRoutes)
     })

@@ -4,6 +4,7 @@ export default {
     documentation: '文档',
     guide: '引导页',
     permission: '权限',
+    resource: '资源',
     rolePermission: '角色权限',
     pagePermission: '页面权限',
     directivePermission: '用户权限',
