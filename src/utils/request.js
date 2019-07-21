@@ -2,6 +2,7 @@ import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+import router from '@/router'
 
 // create an axios instance
 const service = axios.create({
@@ -78,7 +79,12 @@ service.interceptors.response.use(
     if (error.response) {
       message = error.response.data.message
     } else {
-      message = error
+      message = error.message
+    }
+    if (message.startsWith('JWT expired')) {
+      debugger
+      window.location.href = '/login'
+      return
     }
     console.log('err' + message) // for debug
     Message({
