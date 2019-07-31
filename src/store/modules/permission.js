@@ -1,4 +1,5 @@
-import { asyncRoutes, constantRoutes } from '@/router'
+import { constantRoutes } from '@/router'
+/* Layout */
 import Layout from '@/layout'
 
 /**
@@ -48,50 +49,55 @@ const mutations = {
 }
 
 const actions = {
-  generateRoutes({ commit }, roles) {
-    debugger
+  generateRoutes: function({ commit }, sysRoutes) {
     return new Promise(resolve => {
-      let accessedRoutes
-      if (roles.includes('admin')) {
-        accessedRoutes = asyncRoutes || []
-      } else {
-        accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
-      }
-      // TODO
-      accessedRoutes.push({
-        path: '/permission',
-        component: Layout,
-        redirect: '/permission/page',
-        alwaysShow: true, // will always show the root menu
-        name: 'Permission',
-        meta: {
-          title: 'permission',
-          icon: 'lock',
-          roles: ['ROLE_ADMIN'] // you can set roles in root nav
-        },
-        children: [
-          {
-            path: 'directive',
-            component: () => import('@/views/permission/directive'),
-            name: 'DirectivePermission',
-            meta: {
-              title: 'directivePermission',
-              roles: ['ROLE_ADMIN']
+      const routes = []
+      // 拼装路由
+      for (let i = 0; i < sysRoutes.length; i++) {
+        debugger
+        const route = {}
+        if (sysRoutes[i].path) {
+          route['path'] = sysRoutes[i].path
+        }
+        if (sysRoutes[i].name) {
+          route['name'] = sysRoutes[i].name
+        }
+        if (sysRoutes[i].redirect) {
+          route['redirect'] = sysRoutes[i].redirect
+        }
+        if (sysRoutes[i].meta) {
+          route['meta'] = sysRoutes[i].meta
+        }
+        if (sysRoutes[i].children) {
+          const children = sysRoutes[i].children
+          const childrenResult = []
+          for (let j = 0; j < children.length; j++) {
+            const child = {}
+            if (children[j].path) {
+              child['path'] = children[j].path
             }
-          },
-          {
-            path: 'role',
-            component: () => import('@/views/permission/role'),
-            name: 'RolePermission',
-            meta: {
-              title: 'rolePermission',
-              roles: ['ROLE_ADMIN']
+            if (children[j].name) {
+              child['name'] = children[j].name
             }
+            if (children[j].redirect) {
+              child['redirect'] = children[j].redirect
+            }
+            if (children[j].meta) {
+              child['meta'] = children[j].meta
+            }
+            if (children[j].component) {
+              child['component'] = () => import(`@/views/${children[j].component}`)
+            }
+            childrenResult.push(child)
           }
-        ]
-      },)
-      commit('SET_ROUTES', accessedRoutes)
-      resolve(accessedRoutes)
+          route['children'] = childrenResult
+        }
+        route['component'] = Layout
+        routes.push(route)
+      }
+      commit('SET_ROUTES', routes)
+      console.log(routes)
+      resolve(routes)
     })
   }
 }
