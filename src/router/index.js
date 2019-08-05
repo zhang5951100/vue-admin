@@ -64,6 +64,11 @@ export const constantRoutes = [
         meta: { title: 'profile', icon: 'user', noCache: true }
       }
     ]
+  },
+  {
+    'path': '*',
+    'redirect': '/404',
+    'hidden': true
   }
 ]
 

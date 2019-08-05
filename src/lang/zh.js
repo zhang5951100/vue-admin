@@ -7,6 +7,7 @@ export default {
     resource: '资源',
     rolePermission: '角色权限',
     pagePermission: '页面权限',
+    menuPermission: '菜单权限',
     directivePermission: '用户权限',
     icons: '图标',
     components: '组件',
@@ -87,8 +88,9 @@ export default {
     github: 'Github 地址'
   },
   permission: {
-    addRole: '新增角色',
-    addUser: '新增用户',
+    addRole: '添加角色',
+    addUser: '添加用户',
+    addMenu: '添加菜单',
     editPermission: '编辑权限',
     editUser: '编辑用户',
     roles: '你的权限',

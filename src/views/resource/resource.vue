@@ -1,6 +1,6 @@
 <template>
   <div class="resource">
-    <p>resource</p>
+    <p>我的资源</p>
   </div>
 </template>
 

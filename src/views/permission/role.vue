@@ -35,14 +35,14 @@
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑权限':'添加角色'">
       <el-form :model="role" label-width="80px" label-position="left">
         <el-form-item label="角色名称">
-          <el-input v-model="role.name" :disabled="dialogType === 'edit'" placeholder="请输入角色名称, 以 ROLE_ 开头" />
+          <el-input v-model="role.name" :disabled="dialogType === 'edit'" placeholder="请输入角色名称" />
         </el-form-item>
         <el-form-item label="角色描述">
           <el-input
             v-model="role.description"
             :autosize="{ minRows: 2, maxRows: 4}"
             type="textarea"
-            placeholder="角色描述"
+            placeholder="请输入角色描述"
           />
         </el-form-item>
         <el-form-item label="菜单">

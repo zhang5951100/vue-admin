@@ -45,7 +45,7 @@
             v-model="user.introduction"
             :autosize="{ minRows: 2, maxRows: 4}"
             type="textarea"
-            placeholder="用户描述"
+            placeholder="请输入用户描述"
           />
         </el-form-item>
         <el-form-item label="角色">

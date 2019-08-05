@@ -7,6 +7,7 @@ export default {
     resource: 'Resource',
     pagePermission: 'Page Permission',
     rolePermission: 'Role Permission',
+    menuPermission: 'Menu Permission',
     directivePermission: 'User Permission',
     icons: 'Icons',
     components: 'Components',
@@ -89,6 +90,7 @@ export default {
   permission: {
     addRole: 'New Role',
     addUser: 'New User',
+    addMenu: 'New Resource',
     editPermission: 'Edit',
     editUser: 'Edit',
     roles: 'Your roles',
