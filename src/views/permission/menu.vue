@@ -51,12 +51,12 @@
         <el-table-column
           align="center"
           label="创建时间"
-          prop="meta.icon"
+          prop="creatTime"
         />
         <el-table-column
           align="center"
           label="更新时间"
-          prop="meta.icon"
+          prop="updateTime"
         />
         <el-table-column align="center" label="操作" width="150">
           <template scope="scope">
@@ -94,7 +94,7 @@
 </template>
 
 <script>
-import { deepClone } from '@/utils'
+import { deepClone, parseTime } from '@/utils'
 import { getRoutes } from '@/api/role'
 
 const defaultData = {
@@ -123,6 +123,8 @@ export default {
       this.routes = res.data.map(item => {
         return {
           meta: item.meta,
+          creatTime: parseTime(item.creatTime),
+          updateTime: parseTime(item.updateTime),
           son: item.children
         }
       })
