@@ -1,6 +1,7 @@
 export default {
   route: {
     dashboard: '首页',
+    activity: '流程',
     documentation: '文档',
     guide: '引导页',
     permission: '权限',

@@ -66,6 +66,19 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/activity',
+    component: Layout,
+    redirect: '/activity/activity',
+    children: [
+      {
+        path: '/activity/activity',
+        component: () => import('@/views/activity/Activity'),
+        name: 'Activity',
+        meta: { title: 'activity', icon: 'tab' }
+      }
+    ]
+  },
+  {
     'path': '*',
     'redirect': '/404',
     'hidden': true

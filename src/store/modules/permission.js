@@ -54,7 +54,6 @@ const actions = {
       const routes = []
       // 拼装路由
       for (let i = 0; i < sysRoutes.length; i++) {
-        debugger
         const route = {}
         if (sysRoutes[i].path) {
           route['path'] = sysRoutes[i].path

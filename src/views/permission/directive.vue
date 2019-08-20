@@ -135,18 +135,16 @@ export default {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
+      }).then(async() => {
+        await deleteUser(row.key)
+        this.userList.splice($index, 1)
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      }).catch(err => {
+        console.error(err)
       })
-        .then(async() => {
-          await deleteUser(row.key)
-          this.userList.splice($index, 1)
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
-        })
-        .catch(err => {
-          console.error(err)
-        })
     },
     async confirmRole() {
       debugger

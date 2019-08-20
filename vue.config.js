@@ -27,25 +27,23 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
-    port: port,
+    disableHostCheck: true,
     open: true,
-    overlay: {
-      warnings: false,
-      errors: true
-    },
-    proxy: {
-      // change xxx-api/login => mock/login
-      // detail: https://cli.vuejs.org/config/#devserver-proxy
-      [process.env.VUE_APP_BASE_API]: {
-        // TODO
-        // target: `http://127.0.0.1:${port}/mock`,
-        target: `http://127.0.0.1:8088`,
-        changeOrigin: true,
+    // host: 'localhost',
+    port: port,
+    https: false,
+    hotOnly: false,
+    proxy: { // 配置跨域
+      '/api': {
+        target: 'http://localhost:8080/',
+        ws: true,
+        changOrigin: true,
         pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_API]: ''
+          '^/api': ''
         }
       }
-    }
+    },
+    before: app => { }
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that

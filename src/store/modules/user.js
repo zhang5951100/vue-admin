@@ -1,7 +1,6 @@
-import { login, logout, getInfo } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
-
+import context from '../../main.js'
 const state = {
   token: getToken(),
   name: '',
@@ -31,20 +30,16 @@ const mutations = {
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    debugger
-    const { username, password } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        debugger
-        const { data } = response
-        // TODO
-        // commit('SET_TOKEN', data.token)
-        // setToken(data.token)
+      const url = '/api/user/login'
+      context.$axiox.post(url, userInfo).then(res => {
+        const { data } = res
         commit('SET_TOKEN', data)
         setToken(data)
+        console.log(data)
         resolve()
-      }).catch(error => {
-        reject(error)
+      }).catch(res => {
+        reject(res)
       })
     })
   },
@@ -52,9 +47,9 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
+      const url = '/api/user/info'
+      context.$axiox.get(url).then(res => {
+        const { data } = res
         if (!data) {
           reject('Verification failed, please Login again.')
         }
@@ -71,8 +66,8 @@ const actions = {
         commit('SET_AVATAR', avatar)
         commit('SET_INTRODUCTION', introduction)
         resolve(data)
-      }).catch(error => {
-        reject(error)
+      }).catch(res => {
+        reject(res)
       })
     })
   },
@@ -80,15 +75,15 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
-        commit('SET_TOKEN', '')
-        commit('SET_ROLES', [])
-        removeToken()
-        resetRouter()
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
+      // logout(state.token).then(() => {
+      //   commit('SET_TOKEN', '')
+      //   commit('SET_ROLES', [])
+      //   removeToken()
+      //   resetRouter()
+      //   resolve()
+      // }).catch(error => {
+      //   reject(error)
+      // })
     })
   },
 

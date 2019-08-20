@@ -1,5 +1,5 @@
 import Vue from 'vue'
-
+import axios from './utils/request'
 import Cookies from 'js-cookie'
 
 import 'normalize.css/normalize.css' // a modern alternative to CSS resets
@@ -33,6 +33,7 @@ Vue.use(Element, {
   i18n: (key, value) => i18n.t(key, value)
 })
 
+Vue.prototype.$axiox = axios
 // register global utility filters
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
@@ -40,10 +41,11 @@ Object.keys(filters).forEach(key => {
 
 Vue.config.productionTip = false
 
-new Vue({
+const vue = new Vue({
   el: '#app',
   router,
   store,
   i18n,
   render: h => h(App)
 })
+export default vue
