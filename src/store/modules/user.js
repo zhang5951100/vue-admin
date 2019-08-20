@@ -1,9 +1,10 @@
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
-import context from '../../main.js'
+import axiox from '../../utils/request'
 const state = {
   token: getToken(),
   name: '',
+  id: '',
   avatar: '',
   introduction: '',
   roles: []
@@ -32,7 +33,7 @@ const actions = {
   login({ commit }, userInfo) {
     return new Promise((resolve, reject) => {
       const url = '/api/user/login'
-      context.$axiox.post(url, userInfo).then(res => {
+      axiox.post(url, userInfo).then(res => {
         const { data } = res
         commit('SET_TOKEN', data)
         setToken(data)
@@ -48,7 +49,7 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       const url = '/api/user/info'
-      context.$axiox.get(url).then(res => {
+      axiox.get(url).then(res => {
         const { data } = res
         if (!data) {
           reject('Verification failed, please Login again.')
@@ -75,15 +76,16 @@ const actions = {
   // user logout
   logout({ commit, state }) {
     return new Promise((resolve, reject) => {
-      // logout(state.token).then(() => {
-      //   commit('SET_TOKEN', '')
-      //   commit('SET_ROLES', [])
-      //   removeToken()
-      //   resetRouter()
-      //   resolve()
-      // }).catch(error => {
-      //   reject(error)
-      // })
+      const url = '/api/user/logout'
+      axiox.post(url).then(res => {
+        commit('SET_TOKEN', '')
+        commit('SET_ROLES', [])
+        removeToken()
+        resetRouter()
+        resolve()
+      }).catch(res => {
+        reject(res)
+      })
     })
   },
 

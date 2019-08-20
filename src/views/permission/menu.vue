@@ -95,7 +95,6 @@
 
 <script>
 import { deepClone, parseTime } from '@/utils'
-import { getRoutes } from '@/api/role'
 
 const defaultData = {
   date: '',
@@ -119,14 +118,18 @@ export default {
   },
   methods: {
     async getRoutes() {
-      const res = await getRoutes()
-      this.routes = res.data.map(item => {
-        return {
-          meta: item.meta,
-          creatTime: parseTime(item.creatTime),
-          updateTime: parseTime(item.updateTime),
-          son: item.children
-        }
+      const url = '/api/routes'
+      this.$axiox.get(url).then(res => {
+        this.routes = res.data.map(item => {
+          return {
+            meta: item.meta,
+            creatTime: parseTime(item.creatTime),
+            updateTime: parseTime(item.updateTime),
+            son: item.children
+          }
+        })
+      }).catch(res => {
+        console.log(res)
       })
       console.log(this.routes)
     },

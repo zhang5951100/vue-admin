@@ -78,7 +78,7 @@
               {{ scope.row.instanceId }}
             </template>
           </el-table-column>
-          <el-table-column align="header-center" label="代理人">
+          <el-table-column align="header-center" label="审批人">
             <template slot-scope="scope">
               {{ scope.row.assignee }}
             </template>
@@ -110,7 +110,7 @@
               {{ scope.row.instanceId }}
             </template>
           </el-table-column>
-          <el-table-column align="header-center" label="代理人">
+          <el-table-column align="header-center" label="申请人">
             <template slot-scope="scope">
               {{ scope.row.assignee }}
             </template>
@@ -129,14 +129,13 @@
 
     <!--弹出层-->
     <el-dialog
-      title="提示"
+      title="审批"
       :visible.sync="centerDialogVisible"
       width="30%"
       center
     >
-      <span>需要注意的是内容是默认不居中的</span>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="centerDialogVisible = false">取 消</el-button>
+      <span slot="footer">
+        <el-button type="warning" @click="approveSubmit">拒 绝</el-button>
         <el-button type="primary" @click="approveSubmit">确 定</el-button>
       </span>
     </el-dialog>
@@ -188,8 +187,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'name'
-      // 'id'
+      'name',
+      'id'
     ])
   },
   created() {
@@ -232,7 +231,7 @@ export default {
     },
     getUser() {
       this.leave.operator = this.name
-      // this.leave.operatorId = this.id
+      this.leave.operatorId = this.id
     },
     getMyLeaves() {
       const url = `/api/workflow/leaves/${this.leave.operator}`
@@ -258,6 +257,16 @@ export default {
       this.approveLeave = row
     },
     approveSubmit() {
+      switch (this.approveLeave.taskName) {
+        case '一级审批':
+          this.approveLeave.firstAgree = true
+          break
+        case '二级审批':
+          this.approveLeave.secondAgree = true
+          break
+        default:
+          break
+      }
       const url = '/api/workflow/approvals'
       this.$axiox.post(url, this.approveLeave).then(res => {
         this.centerDialogVisible = false

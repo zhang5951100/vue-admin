@@ -68,8 +68,6 @@
 
 <script>
 import { deepClone } from '@/utils'
-import { getRoles } from '@/api/role'
-import { getUser, addUser, updateUser, deleteUser } from '@/api/user'
 
 const defaultUser = {
   key: '',
@@ -104,12 +102,20 @@ export default {
   },
   methods: {
     async getUsers() {
-      const res = await getUser()
-      this.userList = res.data
+      const url = '/api/user/users'
+      this.$axiox.get(url).then(res => {
+        this.userList = res.data
+      }).catch(res => {
+        console.log(res)
+      })
     },
     async getRoles() {
-      const res = await getRoles()
-      this.rolesList = res.data
+      const url = '/api/roles'
+      this.$axiox.get(url).then(res => {
+        this.rolesList = res.data
+      }).catch(res => {
+        console.log(res)
+      })
     },
     handleAddUser() {
       this.user = Object.assign({}, defaultUser)
@@ -124,9 +130,6 @@ export default {
       this.user = deepClone(scope.row)
       this.role = this.user.roleList[0].name
       this.$nextTick(() => {
-        // const routes = this.generateRoutes(this.role.routes)
-        // this.$refs.tree.setCheckedNodes(this.generateArr(routes))
-        // set checked state of a node not affects its father and child nodes
         this.checkStrictly = false
       })
     },
@@ -136,11 +139,15 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async() => {
-        await deleteUser(row.key)
-        this.userList.splice($index, 1)
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
+        const url = `/api/user/users/${row.key}`
+        this.$axiox.delete(url).then(res => {
+          this.userList.splice($index, 1)
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        }).catch(res => {
+          console.log(res)
         })
       }).catch(err => {
         console.error(err)
@@ -161,21 +168,29 @@ export default {
         return
       }
       if (isEdit) {
-        await updateUser(this.user.key, this.user)
-        for (let index = 0; index < this.userList.length; index++) {
-          if (this.userList[index].key === this.user.key) {
-            this.userList.splice(index, 1, Object.assign({}, this.user))
-            break
+        const url = `/api/user/users/${this.user.key}`
+        this.$axiox.put(url, this.user).then(res => {
+          for (let index = 0; index < this.userList.length; index++) {
+            if (this.userList[index].key === this.user.key) {
+              this.userList.splice(index, 1, Object.assign({}, this.user))
+              break
+            }
           }
-        }
+        }).catch(res => {
+          console.log(res)
+        })
       } else {
         if (this.user.password.length < 3) {
           this.$message.error('密码最少 3 个字符')
           return
         }
-        const { data } = await addUser(this.user)
-        this.user.key = data.key
-        this.userList.push(this.user)
+        const url = '/api/user/users'
+        this.$axiox.post(url, this.user).then(res => {
+          this.user.key = res.data.key
+          this.userList.push(this.user)
+        }).catch(res => {
+          console.log(res)
+        })
       }
 
       const { introduction, key, name } = this.user

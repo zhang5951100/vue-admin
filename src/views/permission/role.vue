@@ -72,7 +72,6 @@
 <script>
 import path from 'path'
 import { deepClone } from '@/utils'
-import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
 import i18n from '@/lang'
 
 const defaultRole = {
@@ -109,14 +108,22 @@ export default {
   },
   methods: {
     async getRoutes() {
-      const res = await getRoutes()
-      this.serviceRoutes = res.data
-      const routes = this.generateRoutes(res.data)
-      this.routes = this.i18n(routes)
+      const url = '/api/routes'
+      this.$axiox.get(url).then(res => {
+        this.serviceRoutes = res.data
+        const routes = this.generateRoutes(res.data)
+        this.routes = this.i18n(routes)
+      }).catch(res => {
+        console.log(res)
+      })
     },
     async getRoles() {
-      const res = await getRoles()
-      this.rolesList = res.data
+      const url = '/api/roles'
+      this.$axiox.get(url).then(res => {
+        this.rolesList = res.data
+      }).catch(res => {
+        console.log(res)
+      })
     },
     i18n(routes) {
       const app = routes.map(route => {
@@ -137,20 +144,15 @@ export default {
         if (route.hidden) {
           continue
         }
-
         const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-
         if (route.children && onlyOneShowingChild && !route.alwaysShow) {
           route = onlyOneShowingChild
         }
-
         const data = {
           path: path.resolve(basePath, route.path),
           title: route.meta && route.meta.title
-
         }
-
-        // recursive child routes
+        // 递归
         if (route.children) {
           data.children = this.generateRoutes(route.children, data.path)
         }
@@ -196,18 +198,20 @@ export default {
         confirmButtonText: '确认',
         cancelButtonText: '取消',
         type: 'warning'
-      })
-        .then(async() => {
-          await deleteRole(row.key)
+      }).then(async() => {
+        const url = `/api/role/${row.key}`
+        this.$axiox.delete(url).then(res => {
           this.rolesList.splice($index, 1)
           this.$message({
             type: 'success',
             message: '删除成功!'
           })
+        }).catch(res => {
+          console.log(res)
         })
-        .catch(err => {
-          console.error(err)
-        })
+      }).catch(err => {
+        console.error(err)
+      })
     },
     generateTree(routes, basePath = '/', checkedKeys) {
       const res = []
@@ -233,17 +237,25 @@ export default {
       this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
 
       if (isEdit) {
-        await updateRole(this.role.key, this.role)
-        for (let index = 0; index < this.rolesList.length; index++) {
-          if (this.rolesList[index].key === this.role.key) {
-            this.rolesList.splice(index, 1, Object.assign({}, this.role))
-            break
+        const url = `/api/role/${this.role.key}`
+        this.$axiox.put(url, this.role).then(res => {
+          for (let index = 0; index < this.rolesList.length; index++) {
+            if (this.rolesList[index].key === this.role.key) {
+              this.rolesList.splice(index, 1, Object.assign({}, this.role))
+              break
+            }
           }
-        }
+        }).catch(res => {
+          console.log(res)
+        })
       } else {
-        const { data } = await addRole(this.role)
-        this.role.key = data.key
-        this.rolesList.push(this.role)
+        const url = '/api/role'
+        this.$axiox.post(url, this.role).then(res => {
+          this.role.key = res.data.key
+          this.rolesList.push(this.role)
+        }).catch(res => {
+          console.log(res)
+        })
       }
 
       const { description, key, name } = this.role
