@@ -2,15 +2,17 @@
   <div class="activity">
     <el-tabs v-model="activeName">
       <el-tab-pane name="1" label="发起流程">
-        <el-form ref="leave" :model="leave" :rules="rules" label-width="100px" class="demo-ruleForm">
+        <el-form ref="vacation" :model="vacation" :rules="rules" label-width="100px" class="demo-ruleForm">
           <el-form-item label="开始时间" required>
             <el-col :span="5">
               <el-form-item prop="startDate">
                 <el-date-picker
-                  v-model="leave.startDate"
+                  v-model="vacation.startDate"
+                  prefix-icon="el-icon-date"
                   type="datetime"
                   placeholder="选择日期时间"
                   default-time="08:00:00"
+                  @change="onChange"
                 />
               </el-form-item>
             </el-col>
@@ -19,53 +21,73 @@
             <el-col :span="5">
               <el-form-item prop="endDate">
                 <el-date-picker
-                  v-model="leave.endDate"
+                  v-model="vacation.endDate"
+                  prefix-icon="el-icon-date"
                   type="datetime"
                   placeholder="选择日期时间"
                   default-time="17:00:00"
+                  @change="onChange"
                 />
               </el-form-item>
             </el-col>
           </el-form-item>
+          <el-form-item label="请假时长" prop="type">
+            <span>{{ vacation.totalHour | numFilter }} 时</span>
+          </el-form-item>
           <el-form-item label="请假类型" prop="type">
-            <el-select v-model="leave.type" placeholder="请选择请假类型">
-              <el-option label="事假" value="shanghai" />
-              <el-option label="带薪假" value="beijing" />
+            <el-select v-model="vacation.type" placeholder="请选择请假类型">
+              <el-option label="事假" value="事假" />
+              <el-option label="带薪假" value="带薪假" />
             </el-select>
           </el-form-item>
-          <el-form-item label="请假说明" prop="desc">
+          <el-form-item label="请假说明" prop="explanation">
             <el-col :span="5">
-              <el-input v-model="leave.desc" type="textarea" placeholder="请填写请假说明" />
+              <el-input v-model="vacation.explanation" type="textarea" placeholder="请填写请假说明" />
             </el-col>
           </el-form-item>
           <el-form-item hidden prop="submit">
-            <el-switch v-model="leave.submit" />
+            <el-switch v-model="vacation.submit" />
           </el-form-item>
           <el-form-item hidden prop="operator">
-            <el-input v-model="leave.operator" />
+            <el-input v-model="vacation.operator" />
           </el-form-item>
           <el-form-item hidden prop="operatorId">
-            <el-input v-model="leave.operatorId" />
+            <el-input v-model="vacation.operatorId" />
           </el-form-item>
           <el-form-item hidden prop="processName">
-            <el-input v-model="leave.processName" />
+            <el-input v-model="vacation.processName" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitForm('leave')">立即申请</el-button>
-            <el-button @click="resetForm('leave')">重置</el-button>
+            <el-button type="primary" @click="submitForm('vacation')">立即申请</el-button>
+            <el-button @click="resetForm('vacation')">重置</el-button>
           </el-form-item>
         </el-form>
       </el-tab-pane>
       <el-tab-pane name="2" label="待办流程">
-        <el-table :data="todoLeaves" style="width: 100%;margin-top:30px;" border :default-sort="{prop: 'createTime', order: 'descending'}">
-          <el-table-column align="center" label="任务 ID">
+        <el-table :data="todoVacations" style="width: 100%;margin-top:30px;" border :default-sort="{prop: 'createTime', order: 'descending'}">
+          <el-table-column align="center" label="流程名称">
             <template slot-scope="scope">
-              {{ scope.row.taskId }}
+              {{ scope.row.processName }}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="实例 ID">
+            <template slot-scope="scope">
+              {{ scope.row.instanceId }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="申请说明">
             <template slot-scope="scope">
-              {{ scope.row.desc }}
+              {{ scope.row.explanation }}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="请假时长">
+            <template slot-scope="scope">
+              {{ scope.row.totalHour | numFilter }} 时
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="请假类型">
+            <template slot-scope="scope">
+              {{ scope.row.type }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="流程节点">
@@ -73,17 +95,12 @@
               {{ scope.row.taskName }}
             </template>
           </el-table-column>
-          <el-table-column align="header-center" label="实例 ID">
-            <template slot-scope="scope">
-              {{ scope.row.instanceId }}
-            </template>
-          </el-table-column>
-          <el-table-column align="header-center" label="审批人">
+          <el-table-column align="center" label="审批人">
             <template slot-scope="scope">
               {{ scope.row.assignee }}
             </template>
           </el-table-column>
-          <el-table-column prop="createTime" align="header-center" :formatter="dateFormat" label="创建时间" />
+          <el-table-column prop="createTime" align="center" :formatter="dateFormat" label="创建时间" />
           <el-table-column align="center" label="审批">
             <template slot-scope="scope">
               <el-button type="primary" size="small" @click="approve(scope)">
@@ -94,31 +111,26 @@
         </el-table>
       </el-tab-pane>
       <el-tab-pane name="3" label="我的流程">
-        <el-table :data="myLeaves" style="width: 100%;margin-top:30px;" border :default-sort="{prop: 'createTime', order: 'descending'}">
-          <el-table-column align="center" label="任务 ID">
-            <template slot-scope="scope">
-              {{ scope.row.taskId }}
-            </template>
-          </el-table-column>
-          <el-table-column align="center" label="流程节点">
-            <template slot-scope="scope">
-              {{ scope.row.taskName }}
-            </template>
-          </el-table-column>
-          <el-table-column align="header-center" label="实例 ID">
+        <el-table :data="myVacations" style="width: 100%;margin-top:30px;" border :default-sort="{prop: 'createTime', order: 'descending'}">
+          <el-table-column align="center" label="实例 ID">
             <template slot-scope="scope">
               {{ scope.row.instanceId }}
             </template>
           </el-table-column>
-          <el-table-column align="header-center" label="申请人">
+          <el-table-column align="center" label="流程名称">
+            <template slot-scope="scope">
+              {{ scope.row.processName }}
+            </template>
+          </el-table-column>
+          <el-table-column align="center" label="申请人">
             <template slot-scope="scope">
               {{ scope.row.assignee }}
             </template>
           </el-table-column>
-          <el-table-column prop="createTime" align="header-center" :formatter="dateFormat" label="创建时间" />
-          <el-table-column align="header-center" label="状态">
+          <el-table-column prop="createTime" align="center" :formatter="dateFormat" label="创建时间" />
+          <el-table-column align="center" label="状态">
             <template slot-scope="scope">
-              <el-tag v-if="scope.row.status==='进行中'" type="success">{{ scope.row.status }}</el-tag>
+              <el-tag v-if="scope.row.status==='审批中'" type="success">{{ scope.row.status }}</el-tag>
               <el-tag v-else type="info">{{ scope.row.status }}</el-tag>
             </template>
           </el-table-column>
@@ -148,19 +160,25 @@ import { parseTime } from '@/utils'
 
 export default {
   name: 'Activity',
+  filters: {
+    numFilter(value) {
+      // 截取当前数据到小数点后1位
+      return parseFloat(value).toFixed(1)
+    }
+  },
   data() {
     return {
       centerDialogVisible: false,
       activeName: '1',
-      leave: {
+      vacation: {
         type: '',
         startDate: '',
         endDate: '',
-        date2: '',
-        desc: '',
+        totalHour: 0.00,
+        explanation: '',
         operator: '',
         operatorId: '',
-        processName: 'leave',
+        processName: '',
         taskId: ''
       },
       rules: {
@@ -173,16 +191,13 @@ export default {
         endDate: [
           { type: 'date', required: true, message: '请选择日期', trigger: 'change' }
         ],
-        date2: [
-          { type: 'date', required: true, message: '请选择时间', trigger: 'change' }
-        ],
-        desc: [
+        explanation: [
           { required: true, message: '请选择请假说明', trigger: 'blur' }
         ]
       },
-      myLeaves: [],
-      todoLeaves: [],
-      approveLeave: {}
+      myVacations: [],
+      todoVacations: [],
+      approveVacation: {}
     }
   },
   computed: {
@@ -193,8 +208,8 @@ export default {
   },
   created() {
     this.getUser()
-    this.getMyLeaves()
-    this.getTodoLeaves()
+    this.getMyVacations()
+    this.getTodoVacations()
   },
   methods: {
     // 格式化时间
@@ -205,18 +220,33 @@ export default {
       }
       return parseTime(date)
     },
+    onChange() {
+      if (this.vacation.startDate && this.vacation.endDate) {
+        const startDate = Date.parse(this.vacation.startDate)
+        const endDate = Date.parse(this.vacation.endDate)
+        if (startDate > endDate) {
+          this.$message.error(
+            '请注意时间顺序'
+          )
+          this.vacation.startDate = ''
+        } else {
+          const date = endDate - startDate
+          this.vacation.totalHour = date / 1000 / 60 / 60 - 1
+        }
+      }
+    },
     submitForm(formName) {
       this.$refs[formName].validate(async(valid) => {
         if (valid) {
-          const url = '/api/workflow/applies'
-          this.$axiox.post(url, this.leave).then(res => {
+          const url = '/api/vacations/applies'
+          this.$axiox.post(url, this.vacation).then(res => {
             console.log(res.data)
             this.activeName = '3'
             // 清空表单
             this.resetForm(formName)
             // 重新拉取数据
-            this.getMyLeaves()
-            this.getTodoLeaves()
+            this.getMyVacations()
+            this.getTodoVacations()
           }).catch(res => {
             console.log(res)
           })
@@ -230,50 +260,50 @@ export default {
       this.$refs[formName].resetFields()
     },
     getUser() {
-      this.leave.operator = this.name
-      this.leave.operatorId = this.id
+      this.vacation.operator = this.name
+      this.vacation.operatorId = this.id
     },
-    getMyLeaves() {
-      const url = `/api/workflow/leaves/${this.leave.operator}`
+    getMyVacations() {
+      const url = `/api/vacations/vacations/${this.vacation.operator}`
       this.$axiox.get(url).then(res => {
-        this.myLeaves = res.data
-        console.log('我的流程' + this.myLeaves)
+        this.myVacations = res.data
+        console.log('我的流程' + this.myVacations)
       }).catch(res => {
         console.log(res)
       })
     },
-    getTodoLeaves() {
-      const url = `/api/workflow/processes/${this.leave.operator}`
+    getTodoVacations() {
+      const url = `/api/vacations/processes/${this.vacation.operator}`
       this.$axiox.get(url).then(res => {
         console.log(res.data)
-        this.todoLeaves = res.data
-        console.log('待办流程' + this.todoLeaves)
+        this.todoVacations = res.data
+        console.log('待办流程' + this.todoVacations)
       }).catch(res => {
         console.log(res)
       })
     },
     approve({ row }) {
       this.centerDialogVisible = true
-      this.approveLeave = row
+      this.approveVacation = row
     },
     approveSubmit() {
-      switch (this.approveLeave.taskName) {
+      switch (this.approveVacation.taskName) {
         case '一级审批':
-          this.approveLeave.firstAgree = true
+          this.approveVacation.firstAgree = true
           break
         case '二级审批':
-          this.approveLeave.secondAgree = true
+          this.approveVacation.secondAgree = true
           break
         default:
           break
       }
-      const url = '/api/workflow/approvals'
-      this.$axiox.post(url, this.approveLeave).then(res => {
+      const url = '/api/vacations/approvals'
+      this.$axiox.post(url, this.approveVacation).then(res => {
         this.centerDialogVisible = false
         console.log(res.data)
         // 重新拉取数据
-        this.getMyLeaves()
-        this.getTodoLeaves()
+        this.getMyVacations()
+        this.getTodoVacations()
       }).catch(res => {
         console.log(res)
       })
