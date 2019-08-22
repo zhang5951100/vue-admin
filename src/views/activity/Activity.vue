@@ -64,7 +64,13 @@
         </el-form>
       </el-tab-pane>
       <el-tab-pane name="2" label="待办流程">
-        <el-table :data="todoVacations" style="width: 100%;margin-top:30px;" border :default-sort="{prop: 'createTime', order: 'descending'}">
+        <el-table
+          ref="todoVacations"
+          :data="todoVacations"
+          style="width: 100%;margin-top:30px;"
+          highlight-current-row
+          :default-sort="{prop: 'createTime', order: 'descending'}"
+        >
           <el-table-column align="center" label="流程名称">
             <template slot-scope="scope">
               {{ scope.row.processName }}
@@ -77,7 +83,8 @@
           </el-table-column>
           <el-table-column align="center" label="申请说明">
             <template slot-scope="scope">
-              {{ scope.row.explanation }}
+              <el-button type="text" size="small" @click="handleClick(scope.row)">{{ scope.row.explanation }}
+              </el-button>
             </template>
           </el-table-column>
           <el-table-column align="center" label="请假时长">
@@ -101,7 +108,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="createTime" align="center" :formatter="dateFormat" label="创建时间" />
-          <el-table-column align="center" label="审批">
+          <el-table-column fixed="right" align="center" label="审批">
             <template slot-scope="scope">
               <el-button type="primary" size="small" @click="approve(scope)">
                 审批
@@ -111,7 +118,12 @@
         </el-table>
       </el-tab-pane>
       <el-tab-pane name="3" label="我的流程">
-        <el-table :data="myVacations" style="width: 100%;margin-top:30px;" border :default-sort="{prop: 'createTime', order: 'descending'}">
+        <el-table
+          :data="myVacations"
+          highlight-current-row
+          style="width: 100%;margin-top:30px;"
+          :default-sort="{prop: 'createTime', order: 'descending'}"
+        >
           <el-table-column align="center" label="实例 ID">
             <template slot-scope="scope">
               {{ scope.row.instanceId }}
@@ -146,10 +158,29 @@
       width="30%"
       center
     >
+      <el-input v-model="opinion" :autosize="{ minRows: 8}" type="textarea" placeholder="请填写审批意见" />
       <span slot="footer">
-        <el-button type="warning" @click="approveSubmit">拒 绝</el-button>
-        <el-button type="primary" @click="approveSubmit">确 定</el-button>
+        <el-button type="warning" @click="approveSubmit(false)">拒 绝</el-button>
+        <el-button type="primary" @click="approveSubmit(true)">确 定</el-button>
       </span>
+    </el-dialog>
+
+    <!--弹出层-->
+    <el-dialog
+      title="审批流程"
+      :visible.sync="showStepBar"
+      width="50%"
+      height="50px"
+      center
+    >
+      <div class="stepBar">
+        <el-steps :active="stepBar.active" align-center finish-status="success" :process-status="stepBar.status">
+          <el-step title="提交申请" />
+          <el-step title="一级审批" :description="stepBar.opinion1" />
+          <el-step title="二级审批" :description="stepBar.opinion2" />
+          <el-step title="审批完成" />
+        </el-steps>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -169,8 +200,10 @@ export default {
   data() {
     return {
       centerDialogVisible: false,
+      showStepBar: false,
       activeName: '1',
       vacation: {
+        id: '',
         type: '',
         startDate: '',
         endDate: '',
@@ -197,7 +230,14 @@ export default {
       },
       myVacations: [],
       todoVacations: [],
-      approveVacation: {}
+      approveVacation: {},
+      opinion: '',
+      stepBar: {
+        active: 0,
+        status: 'process',
+        opinion1: '',
+        opinion2: ''
+      }
     }
   },
   computed: {
@@ -225,9 +265,7 @@ export default {
         const startDate = Date.parse(this.vacation.startDate)
         const endDate = Date.parse(this.vacation.endDate)
         if (startDate > endDate) {
-          this.$message.error(
-            '请注意时间顺序'
-          )
+          this.$message.error('请注意时间顺序')
           this.vacation.startDate = ''
         } else {
           const date = endDate - startDate
@@ -286,17 +324,21 @@ export default {
       this.centerDialogVisible = true
       this.approveVacation = row
     },
-    approveSubmit() {
+    approveSubmit(isAgree) {
       switch (this.approveVacation.taskName) {
         case '一级审批':
-          this.approveVacation.firstAgree = true
+          this.approveVacation.firstAgree = isAgree
+          this.approveVacation.firstApproveDesc = this.opinion
           break
         case '二级审批':
-          this.approveVacation.secondAgree = true
+          this.approveVacation.secondAgree = isAgree
+          this.approveVacation.secondApproveDesc = this.opinion
           break
         default:
           break
       }
+      // 清空
+      this.opinion = ''
       const url = '/api/vacations/approvals'
       this.$axiox.post(url, this.approveVacation).then(res => {
         this.centerDialogVisible = false
@@ -307,6 +349,22 @@ export default {
       }).catch(res => {
         console.log(res)
       })
+    },
+    handleClick(row) {
+      debugger
+      switch (row.taskName) {
+        case '一级审批':
+          this.stepBar.active = 1
+          break
+        case '二级审批':
+          this.stepBar.active = 2
+          break
+        default:
+          break
+      }
+      this.stepBar.opinion1 = row.firstApproveDesc
+      this.stepBar.opinion2 = row.secondApproveDesc
+      this.showStepBar = true
     }
   }
 }
@@ -314,6 +372,9 @@ export default {
 
 <style scoped>
   .activity {
-    margin-left: 10px;
+    margin: 0 10px;
+  }
+  .stepBar {
+    height: 100px;
   }
 </style>

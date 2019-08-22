@@ -6,13 +6,7 @@ import { getToken, removeToken } from '@/utils/auth'
 // request interceptor
 axios.interceptors.request.use(
   config => {
-    // do something before request is sent
     if (store.getters.token) {
-      // let each request carry token
-      // ['X-Token'] is a custom headers key
-      // please modify it according to the actual situation
-      // TODO
-      // config.headers['X-Token'] = getToken()
       config.headers['Authorization'] = getToken()
     }
     return config
@@ -26,17 +20,8 @@ axios.interceptors.request.use(
 
 // response interceptor
 axios.interceptors.response.use(
-  /**
-   * If you want to get http information such as headers or status
-   * Please return  response => response
-   */
-
-  /**
-   * Determine the request status by custom code
-   * Here is just an example
-   * You can also judge the status by HTTP Status Code
-   */
   response => {
+    debugger
     const res = response.data
 
     // if the custom code is not 20000, it is judged as an error.
