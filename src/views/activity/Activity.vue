@@ -68,9 +68,16 @@
           ref="todoVacations"
           :data="todoVacations"
           style="width: 100%;margin-top:30px;"
+          border
+          size="mini"
           highlight-current-row
           :default-sort="{prop: 'createTime', order: 'descending'}"
         >
+          <el-table-column
+            align="center"
+            type="index"
+            width="50"
+          />
           <el-table-column align="center" label="流程名称">
             <template slot-scope="scope">
               {{ scope.row.processName }}
@@ -102,11 +109,6 @@
               {{ scope.row.taskName }}
             </template>
           </el-table-column>
-          <el-table-column align="center" label="审批人">
-            <template slot-scope="scope">
-              {{ scope.row.assignee }}
-            </template>
-          </el-table-column>
           <el-table-column prop="createTime" align="center" :formatter="dateFormat" label="创建时间" />
           <el-table-column fixed="right" align="center" label="审批">
             <template slot-scope="scope">
@@ -121,9 +123,16 @@
         <el-table
           :data="myVacations"
           highlight-current-row
+          border
+          size="mini"
           style="width: 100%;margin-top:30px;"
           :default-sort="{prop: 'createTime', order: 'descending'}"
         >
+          <el-table-column
+            align="center"
+            type="index"
+            width="50"
+          />
           <el-table-column align="center" label="实例 ID">
             <template slot-scope="scope">
               {{ scope.row.instanceId }}
@@ -136,7 +145,7 @@
           </el-table-column>
           <el-table-column align="center" label="申请人">
             <template slot-scope="scope">
-              {{ scope.row.assignee }}
+              {{ scope.row.applicant }}
             </template>
           </el-table-column>
           <el-table-column prop="createTime" align="center" :formatter="dateFormat" label="创建时间" />
@@ -147,6 +156,13 @@
             </template>
           </el-table-column>
         </el-table>
+        <pagination
+          v-show="total>0"
+          :total="total"
+          :page.sync="listQuery.page"
+          :limit.sync="listQuery.limit"
+          @pagination="getMyVacations"
+        />
       </el-tab-pane>
       <el-tab-pane name="4" label="历史记录">历史记录</el-tab-pane>
     </el-tabs>
@@ -188,9 +204,11 @@
 <script>
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
+import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
   name: 'Activity',
+  components: { Pagination },
   filters: {
     numFilter(value) {
       // 截取当前数据到小数点后1位
@@ -199,6 +217,15 @@ export default {
   },
   data() {
     return {
+      listQuery: {
+        page: 1,
+        limit: 10,
+        importance: undefined,
+        title: undefined,
+        type: undefined,
+        sort: '+id'
+      },
+      total: 0,
       centerDialogVisible: false,
       showStepBar: false,
       activeName: '1',
@@ -209,8 +236,8 @@ export default {
         endDate: '',
         totalHour: 0.00,
         explanation: '',
-        operator: '',
-        operatorId: '',
+        applicant: '',
+        applicantId: '',
         processName: '',
         taskId: ''
       },
@@ -298,20 +325,24 @@ export default {
       this.$refs[formName].resetFields()
     },
     getUser() {
-      this.vacation.operator = this.name
-      this.vacation.operatorId = this.id
+      this.vacation.applicant = this.name
+      this.vacation.applicantId = this.id
     },
     getMyVacations() {
-      const url = `/api/vacations/vacations/${this.vacation.operator}`
+      const url = `/api/vacations/vacations/${this.vacation.applicantId}
+      /${this.listQuery.page}/${this.listQuery.limit}`
+
       this.$axiox.get(url).then(res => {
-        this.myVacations = res.data
+        console.log('我的流程:' + JSON.stringify(res.data))
+        this.myVacations = res.data.list
+        this.total = res.data.total
         console.log('我的流程' + this.myVacations)
       }).catch(res => {
         console.log(res)
       })
     },
     getTodoVacations() {
-      const url = `/api/vacations/processes/${this.vacation.operator}`
+      const url = `/api/vacations/processes/${this.vacation.applicantId}`
       this.$axiox.get(url).then(res => {
         console.log(res.data)
         this.todoVacations = res.data
@@ -374,7 +405,12 @@ export default {
   .activity {
     margin: 0 10px;
   }
+
   .stepBar {
     height: 100px;
+  }
+
+  .pagination-container{
+    margin-top: 0;
   }
 </style>
